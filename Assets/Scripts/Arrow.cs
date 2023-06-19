@@ -6,11 +6,13 @@ public class Arrow : MonoBehaviour
 {
     private Player _player;
     [SerializeField] private float _speed;
+    private Rigidbody2D _rb;
 
     private bool _arrowFired;
     void Start()
     {
         _player = GameObject.Find("Player").GetComponent<Player>();
+        _rb = GetComponent<Rigidbody2D>();
 
     }
 
@@ -25,18 +27,12 @@ public class Arrow : MonoBehaviour
             FireLeft();
         }
     }
-    private void OnTriggerExit2D(Collider2D other)
-    {
-        if (other.tag == "Player")
-        {
-            _arrowFired = true;
-        }
-    }
+
     void FireRight()
     {
         if (_arrowFired == false)
         {
-            transform.Translate(Vector3.right * _speed * Time.deltaTime);
+            _rb.velocity = transform.right * _speed;
             transform.localScale = new Vector3(1, 1, 1);
             Destroy(this.gameObject, 3f);
         }
@@ -45,11 +41,16 @@ public class Arrow : MonoBehaviour
     {
         if (_arrowFired == false)
         {
-            transform.Translate(-Vector3.right * _speed * Time.deltaTime);
+            _rb.velocity = -transform.right * _speed;
             transform.localScale = new Vector3(-1, 1, 1);
             Destroy(this.gameObject, 3f);
         }
     }
-
-
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.tag == "Player")
+        {
+            _arrowFired = true;
+        }
+    }
 }

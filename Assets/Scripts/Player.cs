@@ -32,12 +32,18 @@ public class Player : MonoBehaviour
     private bool _canFireArrow;
     [SerializeField] private GameObject _arrowPrefab;
 
+    [SerializeField] private GameObject _bowAndArrow;
+    [SerializeField] private Transform _shotPoint;
+
+    [SerializeField] private Bow _bow;
+
 
     void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
         _animator = GetComponent<Animator>();
         _animator.SetLayerWeight(0, 1);
+        _bowAndArrow.SetActive(false);
 
 
         _rb.gravityScale = _gravityAtStart;
@@ -45,6 +51,10 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+        if (_canFireArrow == true)
+        {
+            _animator.SetBool("isRunning", false);
+        }
         if (_canClimb == true)
         {
             Climbing();
@@ -57,18 +67,26 @@ public class Player : MonoBehaviour
 
         Roll();
         Attack();
+        FireArrow();
     }
 
     private void FixedUpdate()
     {
+
         PlayerMovement();
+
     }
 
 
     private void PlayerMovement()
     {
+
+
         float horizontal = Input.GetAxis("Horizontal");
-        transform.Translate(Vector3.right * _mySpeed * horizontal * Time.deltaTime);
+        if (_canFireArrow == false)
+        {
+            transform.Translate(Vector3.right * _mySpeed * horizontal * Time.deltaTime);
+        }
 
         if (horizontal < 0)
         {
@@ -157,33 +175,39 @@ public class Player : MonoBehaviour
             }
             _lastTapTime = Time.time;
         }
+    }
 
+    private void FireArrow()
+    {
         if (_playerHasBow == true)
         {
             if (Input.GetKey(KeyCode.Mouse0))
             {
-                StartCoroutine("FireArrow");
+                StartCoroutine("CanFireArrow");
                 _animator.SetBool("isFiringArrow", true);
             }
             if (Input.GetKeyUp(KeyCode.Mouse0))
             {
-                StopCoroutine("FireArrow");
+                _bowAndArrow.SetActive(false);
+                StopCoroutine("CanFireArrow");
                 _animator.SetBool("isFiringArrow", false);
 
                 if (_canFireArrow == true)
                 {
                     Instantiate(_arrowPrefab, transform.position + new Vector3(0.1f, -0.04f, 0f), Quaternion.identity);
                     _canFireArrow = false;
+
+                    // transform.position + new Vector3(0.1f, -0.04f, 0f)
                 }
             }
         }
     }
 
-    IEnumerator FireArrow()
+    IEnumerator CanFireArrow()
     {
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(0.4f);
+        _bowAndArrow.SetActive(true);
         _canFireArrow = true;
-        Debug.Log("Can Fire Arrow");
     }
 
 
