@@ -7,50 +7,39 @@ public class Arrow : MonoBehaviour
     private Player _player;
     [SerializeField] private float _speed;
     private Rigidbody2D _rb;
+    [SerializeField] private bool _hasHitWall;
 
     private bool _arrowFired;
+
     void Start()
     {
         _player = GameObject.Find("Player").GetComponent<Player>();
         _rb = GetComponent<Rigidbody2D>();
-
     }
 
     void Update()
     {
-        if (_player.transform.localScale.x > 0)
+        FireArrow();
+    }
+
+    void FireArrow()
+    {
+        if (_hasHitWall == false)
         {
-            FireRight();
-        }
-        if (_player.transform.localScale.x < 0)
-        {
-            FireLeft();
+            float angle = Mathf.Atan2(_rb.velocity.y, _rb.velocity.x) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+            Destroy(this.gameObject, 3f);
         }
     }
 
-    void FireRight()
+    private void OnCollisionEnter2D(Collision2D other)
     {
-        if (_arrowFired == false)
+        if (other.gameObject.layer == 3)
         {
-            _rb.velocity = transform.right * _speed;
-            transform.localScale = new Vector3(1, 1, 1);
-            Destroy(this.gameObject, 3f);
-        }
-    }
-    void FireLeft()
-    {
-        if (_arrowFired == false)
-        {
-            _rb.velocity = -transform.right * _speed;
-            transform.localScale = new Vector3(-1, 1, 1);
-            Destroy(this.gameObject, 3f);
-        }
-    }
-    private void OnTriggerExit2D(Collider2D other)
-    {
-        if (other.tag == "Player")
-        {
-            _arrowFired = true;
+            _hasHitWall = true;
+            _rb.velocity = Vector2.zero;
+            _rb.isKinematic = true;
+            Debug.Log("Has Hit Wall");
         }
     }
 }

@@ -9,15 +9,14 @@ public class Player : MonoBehaviour
     [SerializeField] private float _rollSpeed;
     private Rigidbody2D _rb;
 
-    private Animator _animator;
+    [SerializeField] private float _canAttack = 0;
+    [SerializeField] private float _attackRate = 0.3f;
 
-    private float _attackTapRate = 0.2f;
-    private float _canUseSecondaryAttack;
-    private float _attackRate;
+    private Animator _animator;
 
     [SerializeField] private bool _isGrounded;
 
-    private bool _isFacingRight;
+    [SerializeField] private bool _isFacingRight;
 
     private float _lastTapTime = 0;
     private float _tapSpeed = 0.125f;
@@ -26,6 +25,7 @@ public class Player : MonoBehaviour
     [SerializeField] private bool _isClimbing;
 
     [SerializeField] private CapsuleCollider2D _playerCollider;
+    [SerializeField] private BoxCollider2D _playerFeet;
     private int _gravityAtStart = 4;
 
     [SerializeField] private bool _playerHasBow;
@@ -33,9 +33,12 @@ public class Player : MonoBehaviour
     [SerializeField] private GameObject _arrowPrefab;
 
     [SerializeField] private GameObject _bowAndArrow;
-    [SerializeField] private Transform _shotPoint;
 
     [SerializeField] private Bow _bow;
+
+    [SerializeField] private float _arrowSpeed;
+
+
 
 
     void Start()
@@ -44,7 +47,6 @@ public class Player : MonoBehaviour
         _animator = GetComponent<Animator>();
         _animator.SetLayerWeight(0, 1);
         _bowAndArrow.SetActive(false);
-
 
         _rb.gravityScale = _gravityAtStart;
     }
@@ -64,54 +66,57 @@ public class Player : MonoBehaviour
         {
             Jump();
         }
+        //GroundCollisionEnter();
+        //GroundCollisionExit();
 
-        Roll();
+        if (gameObject.transform.localScale.x > 0)
+        {
+            _isFacingRight = true;
+        }
+        else if (gameObject.transform.localScale.x < 0)
+        {
+            _isFacingRight = false;
+
+            Roll();
+        }
         Attack();
         FireArrow();
     }
 
     private void FixedUpdate()
     {
-
         PlayerMovement();
-
     }
 
 
     private void PlayerMovement()
     {
-
-
         float horizontal = Input.GetAxis("Horizontal");
         if (_canFireArrow == false)
         {
             transform.Translate(Vector3.right * _mySpeed * horizontal * Time.deltaTime);
         }
 
-        if (horizontal < 0)
+        if (horizontal > 0)
         {
+            if (!_isFacingRight)
+            {
+                FlipSprite();
+            }
             if (_isGrounded == true)
             {
                 _animator.SetBool("isRunning", true);
-            }
-            FlipSprite();
-
-            if (_isFacingRight == true)
-            {
-                transform.localScale = new Vector3(-1, 1, 1);
             }
         }
-        else if (horizontal > 0)
+        else if (horizontal < 0)
         {
+            if (_isFacingRight)
+            {
+                FlipSprite();
+            }
             if (_isGrounded == true)
             {
                 _animator.SetBool("isRunning", true);
-            }
-            FlipSprite();
-
-            if (_isFacingRight == false)
-            {
-                transform.localScale = new Vector3(1, 1, 1);
             }
         }
         else
@@ -122,6 +127,10 @@ public class Player : MonoBehaviour
 
     private void FlipSprite()
     {
+        Vector3 currentScale = gameObject.transform.localScale;
+        currentScale.x *= -1;
+        gameObject.transform.localScale = currentScale;
+
         _isFacingRight = !_isFacingRight;
     }
 
@@ -163,18 +172,27 @@ public class Player : MonoBehaviour
 
     private void Attack()
     {
-        if (Input.GetKeyDown(KeyCode.Mouse0))
+        if (Input.GetKeyDown(KeyCode.Mouse0) && Time.time > _canAttack)
         {
-            _animator.SetTrigger("Attack_1");
-        }
-        if (Input.GetKeyDown(KeyCode.Mouse0))
-        {
-            if ((Time.time - _lastTapTime) < _tapSpeed)
+            if (_isGrounded == true)
+            {
+                _animator.SetTrigger("Attack_1");
+            }
+            else
             {
                 _animator.SetTrigger("Attack_2");
             }
-            _lastTapTime = Time.time;
+            _canAttack = Time.time + _attackRate;
+
         }
+        /* if (Input.GetKeyDown(KeyCode.Mouse0))
+         {
+             if (Time.time - _lastTapTime < _tapSpeed)
+             {
+                 _animator.SetTrigger("Attack_2");
+             }
+             _lastTapTime = Time.time;
+         }*/
     }
 
     private void FireArrow()
@@ -183,37 +201,39 @@ public class Player : MonoBehaviour
         {
             if (Input.GetKey(KeyCode.Mouse0))
             {
-                StartCoroutine("CanFireArrow");
                 _animator.SetBool("isFiringArrow", true);
+                StartCoroutine("CanFireArrow");
             }
             if (Input.GetKeyUp(KeyCode.Mouse0))
             {
-                _bowAndArrow.SetActive(false);
                 StopCoroutine("CanFireArrow");
                 _animator.SetBool("isFiringArrow", false);
 
                 if (_canFireArrow == true)
                 {
-                    Instantiate(_arrowPrefab, transform.position + new Vector3(0.1f, -0.04f, 0f), Quaternion.identity);
-                    _canFireArrow = false;
-
-                    // transform.position + new Vector3(0.1f, -0.04f, 0f)
+                    if (_isFacingRight == true)
+                    {
+                        GameObject newArrow = Instantiate(_arrowPrefab, transform.position + new Vector3(0.1f, -0.04f, 0f), Quaternion.identity);
+                        newArrow.GetComponent<Rigidbody2D>().velocity = transform.right * _arrowSpeed;
+                        _canFireArrow = false;
+                    }
+                    else if (_isFacingRight == false)
+                    {
+                        GameObject newArrow = Instantiate(_arrowPrefab, transform.position + new Vector3(0.1f, -0.04f, 0f), Quaternion.identity);
+                        newArrow.GetComponent<Rigidbody2D>().velocity = -transform.right * _arrowSpeed;
+                        _canFireArrow = false;
+                    }
                 }
             }
         }
     }
 
+
     IEnumerator CanFireArrow()
     {
         yield return new WaitForSeconds(0.4f);
-        _bowAndArrow.SetActive(true);
         _canFireArrow = true;
     }
-
-
-
-
-
 
     void Climbing()
     {
@@ -224,6 +244,10 @@ public class Player : MonoBehaviour
             _animator.SetBool("isClimbing", true);
             _isClimbing = true;
             _rb.gravityScale = 0;
+            if (_isClimbing == true)
+            {
+                _isGrounded = false;
+            }
         }
         else
         {
@@ -235,6 +259,7 @@ public class Player : MonoBehaviour
     {
         if (other.tag == "Sword")
         {
+            _playerHasBow = false;
             _animator.SetLayerWeight(0, 0f);
             _animator.SetLayerWeight(1, 1f);
             _animator.SetLayerWeight(2, 0f);
@@ -243,6 +268,7 @@ public class Player : MonoBehaviour
         }
         if (other.tag == "Spear")
         {
+            _playerHasBow = false;
             _animator.SetLayerWeight(0, 0f);
             _animator.SetLayerWeight(1, 0f);
             _animator.SetLayerWeight(2, 1f);
@@ -274,6 +300,22 @@ public class Player : MonoBehaviour
             _isClimbing = false;
         }
     }
+    /*public void GroundCollisionExit()
+    {
+        if (_isClimbing == false)
+        {
+            _isGrounded = false;
+            _animator.SetBool("isJumping", true);
+        }
+    }
+    public void GroundCollisionEnter()
+    {
+
+        _isGrounded = true;
+        _animator.SetBool("isJumping", false);
+
+    }*/
+
 
     private void OnCollisionExit2D(Collision2D other)
     {
@@ -296,5 +338,7 @@ public class Player : MonoBehaviour
     {
         transform.position = new Vector3(54f, 8.5f, 0);
     }
+
+
 
 }
