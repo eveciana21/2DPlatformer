@@ -31,7 +31,7 @@ public class CameraTrigger : MonoBehaviour
     IEnumerator ScreenFade()
     {
         yield return new WaitForSeconds(1);
-        _player.PlayerPosOne();
+        //_player.PlayerPosOne();
         yield return new WaitForSeconds(1f);
         _animator.SetBool("screenFade", false);
     }
