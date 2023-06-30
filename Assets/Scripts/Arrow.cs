@@ -9,11 +9,9 @@ public class Arrow : MonoBehaviour
     private Rigidbody2D _rb;
     [SerializeField] private bool _hasHitWall;
 
-    private bool _arrowFired;
-
     void Start()
     {
-        _player = GameObject.Find("Player").GetComponent<Player>();
+        // _player = GameObject.Find("Player").GetComponent<Player>();
         _rb = GetComponent<Rigidbody2D>();
     }
 
@@ -24,6 +22,7 @@ public class Arrow : MonoBehaviour
 
     void FireArrow()
     {
+        // transform.Translate(transform.forward * _speed * Time.deltaTime);
         if (_hasHitWall == false)
         {
             float angle = Mathf.Atan2(_rb.velocity.y, _rb.velocity.x) * Mathf.Rad2Deg;
@@ -34,12 +33,12 @@ public class Arrow : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D other)
     {
-        if (other.gameObject.layer == 3)
+        /*if (other.gameObject.layer == 3)
         {
             _hasHitWall = true;
             _rb.velocity = Vector2.zero;
             _rb.isKinematic = true;
             Debug.Log("Has Hit Wall");
-        }
+        }*/
     }
 }

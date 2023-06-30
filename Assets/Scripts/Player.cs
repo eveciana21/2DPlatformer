@@ -39,6 +39,8 @@ public class Player : MonoBehaviour
 
     [SerializeField] private float _arrowSpeed;
 
+    private int _direction = 1;
+
 
     void Start()
     {
@@ -73,17 +75,10 @@ public class Player : MonoBehaviour
             _isFacingRight = false;
         }
 
-        if (Input.GetKeyDown(KeyCode.Space) && _isGrounded == true)
-        {
-            _rb.velocity += new Vector2(0f, _jumpHeight);
-            _rb.gravityScale = _gravityAtStart / 2;
-        }
-        if (Input.GetKeyUp(KeyCode.Space) | _rb.velocity.y < -0.1)
-        {
-            _rb.gravityScale = _gravityAtStart;
-        }
-
+        // if (_canClimb == true)
+        // {
         Climbing();
+        //}
         Roll();
         Attack();
         FireArrow();
@@ -142,7 +137,7 @@ public class Player : MonoBehaviour
 
     private void Jump()
     {
-        if (!_playerFeet.IsTouchingLayers(LayerMask.GetMask("Platform")) && _isClimbing == false)
+        if (!_playerFeet.IsTouchingLayers(LayerMask.GetMask("Platform")))// && _isClimbing == false)
         {
             _isGrounded = false;
             _animator.SetBool("isJumping", true);
@@ -152,7 +147,15 @@ public class Player : MonoBehaviour
             _isGrounded = true;
             _animator.SetBool("isJumping", false);
         }
-
+        if (_isGrounded == true && Input.GetKeyDown(KeyCode.Space))
+        {
+            _rb.velocity += new Vector2(0f, _jumpHeight);
+            _rb.gravityScale = _gravityAtStart / 2;
+        }
+        if (Input.GetKeyUp(KeyCode.Space) || _rb.velocity.y < -0.1)
+        {
+            _rb.gravityScale = _gravityAtStart;
+        }
     }
 
     private void Roll()
@@ -187,7 +190,7 @@ public class Player : MonoBehaviour
             }
             else
             {
-                _animator.SetTrigger("Attack_2");
+                _animator.SetTrigger("Attack_2"); //JUMP ATTACK
             }
             _canAttack = Time.time + _attackRate;
         }
@@ -211,16 +214,16 @@ public class Player : MonoBehaviour
                 {
                     if (_isFacingRight == true)
                     {
-                        GameObject newArrow = Instantiate(_arrowPrefab, transform.position + new Vector3(0.1f, -0.04f, 0f), Quaternion.identity);
-                        newArrow.GetComponent<Rigidbody2D>().velocity = transform.right * _arrowSpeed;
-                        _canFireArrow = false;
+                        _direction = 1;
                     }
                     else if (_isFacingRight == false)
                     {
-                        GameObject newArrow = Instantiate(_arrowPrefab, transform.position + new Vector3(0.1f, -0.04f, 0f), Quaternion.identity);
-                        newArrow.GetComponent<Rigidbody2D>().velocity = -transform.right * _arrowSpeed;
-                        _canFireArrow = false;
+
+                        _direction = -1;
                     }
+                    GameObject newArrow = Instantiate(_arrowPrefab, transform.position, Quaternion.identity); //+ new Vector3(0.1f, -0.04f, 0f)
+                    newArrow.GetComponent<Rigidbody2D>().velocity = _direction * transform.right * _arrowSpeed;
+                    _canFireArrow = false;
                 }
             }
         }
@@ -244,22 +247,21 @@ public class Player : MonoBehaviour
                 _isClimbing = true;
                 _rb.gravityScale = _gravityAtStart * 0;
                 _animator.SetBool("isClimbing", true);
-                if (_isClimbing == true)
-                {
-                    _isGrounded = false;
-                }
+                _isGrounded = false;
             }
             else
             {
                 _animator.SetBool("isClimbing", false);
             }
+            _rb.gravityScale = _gravityAtStart;
         }
         else
         {
             _animator.SetBool("isClimbing", false);
-            _rb.gravityScale = _gravityAtStart;
             _isClimbing = false;
         }
+
+
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -297,6 +299,14 @@ public class Player : MonoBehaviour
             _canClimb = true;
         }*/
     }
+
+    /* private void OnTriggerExit2D(Collider2D other)
+     {
+         if (other.tag == "Ladder")
+         {
+             _canClimb = false;
+         }
+     }*/
 
 
 

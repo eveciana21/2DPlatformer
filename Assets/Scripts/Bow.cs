@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Bow : MonoBehaviour
 {
-    [SerializeField] private Transform _shotPoint;
     [SerializeField] GameObject _arrowPrefab;
     [SerializeField] private float _speed = 5;
 
