@@ -240,20 +240,20 @@ public class Player : MonoBehaviour
     {
         if (_playerCollider.IsTouchingLayers(LayerMask.GetMask("Climbing")))
         {
+            _rb.gravityScale = _gravityAtStart * 0;
+
             if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S))
             {
+                _isClimbing = true;
+                _isGrounded = false;
                 float vertical = Input.GetAxis("Vertical");
                 transform.Translate(Vector3.up * vertical * _mySpeed / 2 * Time.deltaTime);
-                _isClimbing = true;
-                _rb.gravityScale = _gravityAtStart * 0;
                 _animator.SetBool("isClimbing", true);
-                _isGrounded = false;
             }
             else
             {
                 _animator.SetBool("isClimbing", false);
             }
-            _rb.gravityScale = _gravityAtStart;
         }
         else
         {
@@ -308,26 +308,16 @@ public class Player : MonoBehaviour
          }
      }*/
 
-
-
-
-
-
-
-
-
-
-
-    /* private void OnTriggerExit2D(Collider2D other)
-     {
-         if (other.tag == "Ladder")
-         {
-             _animator.SetBool("isClimbing", false);
-             _rb.gravityScale = _gravityAtStart;
-             _canClimb = false;
-             _isClimbing = false;
-         }
-     }*/
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.tag == "Ladder")
+        {
+            _animator.SetBool("isClimbing", false);
+            _rb.gravityScale = _gravityAtStart;
+            _canClimb = false;
+            _isClimbing = false;
+        }
+    }
 
 
 
