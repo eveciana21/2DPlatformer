@@ -67,7 +67,6 @@ public class Player : MonoBehaviour
         }
 
 
-        Climbing();
 
 
         Roll();
@@ -82,13 +81,12 @@ public class Player : MonoBehaviour
         {
             _isFacingRight = false;
         }
-
-
     }
 
     private void FixedUpdate()
     {
         PlayerMovement();
+        Climbing();
     }
 
 
