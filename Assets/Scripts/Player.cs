@@ -19,9 +19,8 @@ public class Player : MonoBehaviour
     [SerializeField] private bool _isFacingRight;
 
     private float _lastTapTime = 0;
-    private float _tapSpeed = 0.125f;
+    private float _tapSpeed = 0.2f;
 
-    [SerializeField] private bool _canClimb;
     [SerializeField] private bool _isClimbing;
 
     [SerializeField] private CapsuleCollider2D _playerCollider;
@@ -87,6 +86,10 @@ public class Player : MonoBehaviour
     {
         PlayerMovement();
         Climbing();
+        if (_isGrounded == true)
+        {
+            _isClimbing = false;
+        }
     }
 
 
@@ -142,7 +145,7 @@ public class Player : MonoBehaviour
             _isGrounded = false;
             _animator.SetBool("isJumping", true);
         }
-        if (_playerFeet.IsTouchingLayers(LayerMask.GetMask("Platform")))
+        else if (_playerFeet.IsTouchingLayers(LayerMask.GetMask("Platform")))
         {
             _isGrounded = true;
             _animator.SetBool("isJumping", false);
@@ -153,7 +156,7 @@ public class Player : MonoBehaviour
             _rb.velocity += new Vector2(0f, _jumpHeight);
             _rb.gravityScale = _gravityAtStart / 2;
         }
-        if (Input.GetKeyUp(KeyCode.Space) || _rb.velocity.y < -0.1)
+        else if (Input.GetKeyUp(KeyCode.Space) || _rb.velocity.y < -0.1)
         {
             _rb.gravityScale = _gravityAtStart;
         }
@@ -242,22 +245,24 @@ public class Player : MonoBehaviour
 
         if (_playerCollider.IsTouchingLayers(LayerMask.GetMask("Climbing")))
         {
-            _rb.gravityScale = _gravityAtStart * 0;
-
-
-            if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S))
+            // _rb.gravityScale = _gravityAtStart * 0;
+            if (_isGrounded == false)
             {
-                _isClimbing = true;
-                _isGrounded = false;
-                float vertical = Input.GetAxis("Vertical");
-                transform.Translate(Vector3.up * vertical * _mySpeed / 2 * Time.deltaTime);
-                _animator.SetBool("isClimbing", true);
-            }
-            else
-            {
-                _animator.SetBool("isClimbing", false);
-            }
+                if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S))
+                {
+                    _rb.gravityScale = _gravityAtStart * 0;
 
+                    _isClimbing = true;
+                    _isGrounded = false;
+                    float vertical = Input.GetAxis("Vertical");
+                    transform.Translate(Vector3.up * vertical * _mySpeed / 2 * Time.deltaTime);
+                    _animator.SetBool("isClimbing", true);
+                }
+                else
+                {
+                    _animator.SetBool("isClimbing", false);
+                }
+            }
 
         }
         else
@@ -297,20 +302,7 @@ public class Player : MonoBehaviour
             _animator.SetLayerWeight(3, 1f);
             Debug.Log("Picked up Bow!");
         }
-
-        /*if (other.tag == "Ladder")
-        {
-            _canClimb = true;
-        }*/
     }
-
-    /* private void OnTriggerExit2D(Collider2D other)
-     {
-         if (other.tag == "Ladder")
-         {
-             _canClimb = false;
-         }
-     }*/
 
     private void OnTriggerExit2D(Collider2D other)
     {
@@ -318,7 +310,6 @@ public class Player : MonoBehaviour
         {
             _animator.SetBool("isClimbing", false);
             _rb.gravityScale = _gravityAtStart;
-            _canClimb = false;
             _isClimbing = false;
         }
     }
@@ -329,35 +320,7 @@ public class Player : MonoBehaviour
 
 
 
-    /*private void OnCollisionExit2D(Collision2D other)
-    {
-        if (!_feet.IsTouchingLayers(LayerMask.GetMask("Platform")) && _isClimbing == false)
-        {
-            Debug.Log("isnottouchingcollision");
-            _isGrounded = false;
-            _animator.SetBool("isJumping", true);
-        }
-
-        if (other.gameObject.layer == 3 && _isClimbing == false)
-        {
-            _isGrounded = false;
-            _animator.SetBool("isJumping", true);
-        }
-    }
-    private void OnCollisionEnter2D(Collision2D other)
-    {
-        if (_feet.IsTouchingLayers(LayerMask.GetMask("Platform")))
-        {
-            Debug.Log("istouchingcollision");
-            _isGrounded = true;
-            _animator.SetBool("isJumping", false);
-        }
-        if (other.gameObject.layer == 3)
-        {
-            _isGrounded = true;
-            _animator.SetBool("isJumping", false);
-        }
-    }*/
+    
 
 
 

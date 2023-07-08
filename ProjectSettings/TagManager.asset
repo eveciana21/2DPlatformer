@@ -11,6 +11,9 @@ TagManager:
   - Door
   - Camera_Trigger
   - Feet
+  - Arrow
+  - Enemy
+  - EnemyFlip
   layers:
   - Default
   - TransparentFX
