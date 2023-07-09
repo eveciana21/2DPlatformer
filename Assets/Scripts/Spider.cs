@@ -6,16 +6,17 @@ public class Spider : MonoBehaviour
 {
     [SerializeField] private BoxCollider2D _wallDetector;
     [SerializeField] private CircleCollider2D _clifDetector;
+    [SerializeField] private CapsuleCollider2D _bodyCollider;
     [SerializeField] private Animator _animator;
+    [SerializeField] private float _speed = 1;
+    [SerializeField] private bool _isPlayerNearby;
+
     private bool _isFacingRight;
     private bool _canBeDamaged;
     private Player _player;
-    private float _speed = 1;
-    private bool _isPlayerNearby;
     private bool _canBeFlipped;
     private bool _nearClif;
-    private int _direction = 1;
-    private bool _facePlayer;
+    private bool _enemyDead;
 
 
 
@@ -27,7 +28,6 @@ public class Spider : MonoBehaviour
         {
             Debug.Log("Player is null");
         }
-
         _canBeDamaged = false;
         StartCoroutine(EnableCollider());
     }
@@ -43,27 +43,23 @@ public class Spider : MonoBehaviour
             _isFacingRight = false;
         }
 
-        CheckDistanceFromPlayer();
-        EnemyMovement();
+        if (_enemyDead == false)
+        {
+            CheckDistanceFromPlayer();
+            EnemyMovement();
+        }
     }
 
     void EnemyMovement()
     {
-        _animator.SetBool("Run", true);
-
-        // FLIP SPRITE IF ENEMY BUMPS INTO WALL //
-        if (_wallDetector.IsTouchingLayers(LayerMask.GetMask("Platform")))
+        if (_wallDetector.IsTouchingLayers(LayerMask.GetMask("Platform"))) // FLIP SPRITE IF ENEMY BUMPS INTO WALL
         {
-            if (_isFacingRight == false)
-            {
-                FlipSprite();
-            }
+            FlipSprite();
         }
 
-        // FLIP SPRITE IF ENEMY IS NEAR A CLIF //
         if (_canBeFlipped == true)
         {
-            if (!_clifDetector.IsTouchingLayers(LayerMask.GetMask("Platform")))
+            if (!_clifDetector.IsTouchingLayers(LayerMask.GetMask("Platform"))) // FLIP SPRITE IF ENEMY IS NEAR A CLIF //
             {
                 _nearClif = true;
                 FlipSprite();
@@ -78,59 +74,43 @@ public class Spider : MonoBehaviour
         {
             if (_isFacingRight == true)
             {
-                if (_player.transform.position.x < transform.position.x) // If Enemy is looking LEFT
+                if (_player.transform.position.x < transform.position.x) // If Enemy is looking RIGHT && Player is on Left
                 {
                     FlipSprite();
-                    transform.Translate(Vector3.left * 1f * Time.deltaTime);
+                    transform.Translate(Vector3.left * _speed * Time.deltaTime);
                 }
                 else
                 {
-                    transform.Translate(Vector3.right * 1f * Time.deltaTime);
+                    transform.Translate(Vector3.right * _speed * Time.deltaTime); // If Enemy is looking RIGHT and player is on Right
                 }
             }
             else
             {
-                if (_player.transform.position.x > transform.position.x) // If Enemy is looking LEFT
+                if (_player.transform.position.x > transform.position.x) // If Enemy is looking LEFT && Player is on Right
                 {
                     FlipSprite();
-                    transform.Translate(Vector3.right * 1f * Time.deltaTime);
+                    transform.Translate(Vector3.right * _speed * Time.deltaTime);
                 }
                 else
                 {
-                    transform.Translate(Vector3.left * 1f * Time.deltaTime);
+                    transform.Translate(Vector3.left * _speed * Time.deltaTime); // If Enemy is looking left && Player is on left
                 }
             }
         }
+
         else
         {
             if (_isFacingRight == true)
             {
-
-                FlipSprite();
-                transform.Translate(Vector3.left * 1f * Time.deltaTime);
+                transform.Translate(Vector3.right * _speed * Time.deltaTime);
             }
             else
             {
-                transform.Translate(Vector3.right * 1f * Time.deltaTime);
+                transform.Translate(Vector3.left * _speed * Time.deltaTime);
             }
         }
-        //}
-
-        /*else
-        {
-            //IF THE PLAYER IS NEARBY && THE ENEMY IS NEAR A CLIF
-            if (_nearClif == true)
-            {
-                return;
-            }
-            else
-            {
-                float speed = _speed * Time.deltaTime;
-                transform.position = Vector3.MoveTowards(transform.position, _player.transform.position, speed);
-            }
-        }*/
-
     }
+
     void CheckDistanceFromPlayer()
     {
         float playerDistance = Vector3.Distance(transform.position, _player.transform.position);
@@ -141,6 +121,18 @@ public class Spider : MonoBehaviour
         else if (playerDistance >= 5)
         {
             _isPlayerNearby = false;
+        }
+        if (playerDistance <= 1.5f)
+        {
+            _clifDetector.enabled = false;
+            _animator.SetBool("Run", false);
+            _animator.SetBool("Attack", true);
+        }
+        else
+        {
+            _clifDetector.enabled = true;
+            _animator.SetBool("Run", true);
+            _animator.SetBool("Attack", false);
         }
     }
 
@@ -159,22 +151,23 @@ public class Spider : MonoBehaviour
         {
             if (other.tag == "Sword")
             {
-                Debug.Log("Destroyed");
-                Destroy(this.gameObject);
+                _enemyDead = true;
+                _animator.SetBool("Death", true);
+                Destroy(this.gameObject, 3);
             }
             if (other.tag == "Arrow")
             {
-                Debug.Log("Destroyed");
-                Destroy(this.gameObject);
+                _enemyDead = true;
+                _animator.SetBool("Death", true);
+                Destroy(this.gameObject, 3);
             }
         }
     }
 
     IEnumerator EnableCollider()
     {
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(0.5f);
         _canBeDamaged = true;
         _canBeFlipped = true;
     }
-
 }

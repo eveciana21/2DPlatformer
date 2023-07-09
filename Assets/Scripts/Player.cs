@@ -39,6 +39,7 @@ public class Player : MonoBehaviour
     [SerializeField] private float _arrowSpeed;
 
     private int _direction = 1;
+    private bool _canClimb;
 
 
     void Start()
@@ -86,6 +87,7 @@ public class Player : MonoBehaviour
     {
         PlayerMovement();
         Climbing();
+
         if (_isGrounded == true)
         {
             _isClimbing = false;
@@ -222,10 +224,9 @@ public class Player : MonoBehaviour
                     }
                     else if (_isFacingRight == false)
                     {
-
                         _direction = -1;
                     }
-                    GameObject newArrow = Instantiate(_arrowPrefab, transform.position, Quaternion.identity); //+ new Vector3(0.1f, -0.04f, 0f)
+                    GameObject newArrow = Instantiate(_arrowPrefab, transform.position, Quaternion.identity);
                     newArrow.GetComponent<Rigidbody2D>().velocity = _direction * transform.right * _arrowSpeed;
                     _canFireArrow = false;
                 }
@@ -242,28 +243,26 @@ public class Player : MonoBehaviour
 
     void Climbing()
     {
-
         if (_playerCollider.IsTouchingLayers(LayerMask.GetMask("Climbing")))
         {
             // _rb.gravityScale = _gravityAtStart * 0;
-            if (_isGrounded == false)
+            // if (_isGrounded == false)
+            //{
+            if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S))
             {
-                if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S))
-                {
-                    _rb.gravityScale = _gravityAtStart * 0;
+                _rb.gravityScale = _gravityAtStart * 0;
 
-                    _isClimbing = true;
-                    _isGrounded = false;
-                    float vertical = Input.GetAxis("Vertical");
-                    transform.Translate(Vector3.up * vertical * _mySpeed / 2 * Time.deltaTime);
-                    _animator.SetBool("isClimbing", true);
-                }
-                else
-                {
-                    _animator.SetBool("isClimbing", false);
-                }
+                _isClimbing = true;
+                _isGrounded = false;
+                float vertical = Input.GetAxis("Vertical");
+                transform.Translate(Vector3.up * vertical * _mySpeed / 2 * Time.deltaTime);
+                _animator.SetBool("isClimbing", true);
             }
-
+            else
+            {
+                _animator.SetBool("isClimbing", false);
+            }
+            //}
         }
         else
         {
@@ -320,7 +319,7 @@ public class Player : MonoBehaviour
 
 
 
-    
+
 
 
 

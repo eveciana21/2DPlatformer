@@ -13,14 +13,8 @@ public class Crate : MonoBehaviour
     {
         _collider = GetComponent<BoxCollider2D>();
         _random = Random.Range(0, 2);
-        Debug.Log(_random);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -30,7 +24,6 @@ public class Crate : MonoBehaviour
             {
                 Instantiate(_coin, transform.position, Quaternion.identity);
             }
-            Debug.Log("Destroyed Crate!");
             _crateDestroyedAnim.enabled = true;
             _collider.enabled = false;
             Destroy(this.gameObject, 5f);
