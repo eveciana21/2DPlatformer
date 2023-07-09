@@ -254,15 +254,10 @@ public class Player : MonoBehaviour
             }
             else
             {
-                //if (_isGrounded == true)
-                //{
-                //    _animator.SetBool("isClimbing", false);
-                //}
                 if (_isGrounded == false)
                 {
                     _animator.speed = 0;
                 }
-
             }
         }
         else

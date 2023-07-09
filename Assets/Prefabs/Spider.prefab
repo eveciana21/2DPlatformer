@@ -211,7 +211,7 @@ MonoBehaviour:
   _clifDetector: {fileID: 3913238594772696370}
   _bodyCollider: {fileID: 9048598386213214293}
   _animator: {fileID: 973782258}
-  _speed: 0
+  _speed: 1
   _isPlayerNearby: 0
 --- !u!1 &9089197912182991746
 GameObject:

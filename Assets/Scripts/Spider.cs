@@ -8,7 +8,7 @@ public class Spider : MonoBehaviour
     [SerializeField] private CircleCollider2D _clifDetector;
     [SerializeField] private CapsuleCollider2D _bodyCollider;
     [SerializeField] private Animator _animator;
-    [SerializeField] private float _speed = 1;
+    [SerializeField] private float _speed;
     [SerializeField] private bool _isPlayerNearby;
 
     private bool _isFacingRight;
@@ -62,7 +62,10 @@ public class Spider : MonoBehaviour
             if (!_clifDetector.IsTouchingLayers(LayerMask.GetMask("Platform"))) // FLIP SPRITE IF ENEMY IS NEAR A CLIF //
             {
                 _nearClif = true;
-                FlipSprite();
+                if (_nearClif == true)
+                {
+                    FlipSprite();
+                }
             }
             else
             {
