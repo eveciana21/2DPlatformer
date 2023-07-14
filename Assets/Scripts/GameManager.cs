@@ -5,15 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    void Start()
-    {
 
-    }
-
-    void Update()
-    {
-
-    }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -22,4 +14,8 @@ public class GameManager : MonoBehaviour
             SceneManager.LoadScene(2);
         }
     }
+
+
+
+
 }
