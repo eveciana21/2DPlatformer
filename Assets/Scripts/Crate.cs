@@ -24,9 +24,14 @@ public class Crate : MonoBehaviour
             {
                 Instantiate(_coin, transform.position, Quaternion.identity);
             }
-            _crateDestroyedAnim.enabled = true;
-            _collider.enabled = false;
-            Destroy(this.gameObject, 5f);
+            StartCoroutine(ColliderDisabled());
         }
+    }
+    IEnumerator ColliderDisabled()
+    {
+        _crateDestroyedAnim.enabled = true;
+        yield return new WaitForSeconds(0.2f);
+        _collider.enabled = false;
+        Destroy(this.gameObject, 5f);
     }
 }

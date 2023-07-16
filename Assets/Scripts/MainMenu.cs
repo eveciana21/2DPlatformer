@@ -28,19 +28,19 @@ public class MainMenu : MonoBehaviour
     {
         _playDirector.Play();
         yield return new WaitForSeconds(2);
-        //SceneManager.LoadScene(2); // LEVEL ONE
+        SceneManager.LoadScene(2); // LEVEL ONE
     }
 
     IEnumerator Options()
     {
         _optionsDirector.Play();
         yield return new WaitForSeconds(2);
-        // SceneManager.LoadScene(2); // LEVEL ONE
+        SceneManager.LoadScene(2); // LEVEL ONE
     }
     IEnumerator Quit()
     {
         _quitDirector.Play();
         yield return new WaitForSeconds(2);
-        //Application.Quit();
+        Application.Quit();
     }
 }
