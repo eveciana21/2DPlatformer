@@ -11,7 +11,7 @@ public class Coin : MonoBehaviour
         if (other.tag == "Player")
         {
             GameObject coinPickup = Instantiate(_coinPickupAnim, transform.position, Quaternion.identity);
-            Destroy(coinPickup, 0.2f);
+            Destroy(coinPickup, 0.3f);
             Debug.Log("Picked up Coin!");
             Destroy(this.gameObject);
         }
